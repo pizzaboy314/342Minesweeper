@@ -1,22 +1,21 @@
 package classes;
 //comment
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 public class Game {
 
 	JFrame mainFrame;
-	JPanel board;
+	Container board;
 
 	public Game(String windowLabel) {
-		mainFrame = new JFrame();
-		mainFrame.setTitle(windowLabel);
-		mainFrame.setSize(600, 600);
-		mainFrame.setVisible(true);
+		mainFrame = new JFrame(windowLabel);
+
 		mainFrame.setLayout(new GridLayout(1, 2));
 
 		mainFrame.addWindowListener(new WindowAdapter() {
@@ -25,15 +24,17 @@ public class Game {
 			}
 		});
 
-		board = new JPanel();
+		board = mainFrame.getContentPane();
 		board.setLayout(new GridLayout(10, 10));
+		board.setPreferredSize(new Dimension(400, 400));
 
 		for (int i = 0; i < 100; i++) {
 			Button tmp = new Button("" + (i + 1));
 			board.add(tmp.getButton());
 		}
-
-		mainFrame.add(board);
+		mainFrame.pack();
+		mainFrame.setVisible(true);
+		mainFrame.setResizable(false);
 	}
 
 }
