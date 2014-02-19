@@ -1,25 +1,39 @@
 package classes;
 //comment
-import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
-public class Game extends JFrame {
+public class Game {
+
+	JFrame mainFrame;
+	JPanel board;
 
 	public Game(String windowLabel) {
-		super(windowLabel);
+		mainFrame = new JFrame();
+		mainFrame.setTitle(windowLabel);
+		mainFrame.setSize(600, 600);
+		mainFrame.setVisible(true);
+		mainFrame.setLayout(new GridLayout(1, 2));
 
-		Container c = getContentPane();
-		c.setLayout(new GridLayout(10, 10));
+		mainFrame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		});
+
+		board = new JPanel();
+		board.setLayout(new GridLayout(10, 10));
 
 		for (int i = 0; i < 100; i++) {
 			Button tmp = new Button("" + (i + 1));
-			c.add(tmp.getButton());
+			board.add(tmp.getButton());
 		}
 
-		setSize(500, 500);
-		show();
+		mainFrame.add(board);
 	}
 
 }
