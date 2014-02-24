@@ -3,6 +3,7 @@ package classes;
 import java.awt.Font;
 import java.awt.Insets;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 public class Button extends JButton {
@@ -11,47 +12,53 @@ public class Button extends JButton {
 	private int i;
 	private int j;
 	private int val;
-	private String label;
+	private int toggleState;
+	private ImageIcon icon;
 	private boolean isBomb;
 	private boolean hidden;
 	private boolean flagged;
-	private boolean unsure;
 	
+	private ImageIcon[] icons;
+
 	public Button(int iPos, int jPos) {
+		icons = new ImageIcon[13];
+		for (int i = 0; i < 13; i++) {
+			ImageIcon ico = new ImageIcon("icon" + i + ".jpeg");
+			icons[i] = ico;
+		}
+
 		val = 0;
-		label = "";
+		icon = icons[0];
 		i = iPos;
 		j = jPos;
+		toggleState = 1;
 
 		flagged = false;
-		unsure = false;
-
-		setFont(new Font("Arial", Font.BOLD, 12));
-		setText(label);
-		setMargin(new Insets(0, 0, 0, 0));
-		setHidden(true);
 		
 
+
+		setFont(new Font("Arial", Font.BOLD, 12));
+		setIcon(icon);
+		setMargin(new Insets(0, 0, 0, 0));
+		setHidden(true);
 	}
 	
 	public void toggleFlags() {
-		if (flagged == false && unsure == false) {
-			flagged = true;
-			setText("M");
-		} else if (flagged == true && unsure == false) {
-			flagged = false;
-			unsure = true;
-			setText("?");
-		} else if (flagged == false && unsure == true) {
-			unsure = false;
-			setText("");
+		if (toggleState < 3) {
+			setToggleState(toggleState + 1);
+		} else {
+			setToggleState(1);
 		}
+
 	}
 
 	public void setHidden(boolean b) {
 		hidden = b;
-		String s = b ? "" : label;
-		setText(s);
+		if (b == true) {
+			setIcon(icons[0]);
+		} else {
+			setIcon(icon);
+		}
 	}
 
 
@@ -63,9 +70,9 @@ public class Button extends JButton {
 		this.val = val;
 		if (isBomb == false) {
 			if (val > 0) {
-				label = "" + val;
+				icon = icons[val];
 			} else {
-				label = "";
+				icon = icons[0];
 			}
 		}
 	}
@@ -74,14 +81,16 @@ public class Button extends JButton {
 		return isBomb;
 	}
 
-	public String getLabel() {
-		return label;
+	public ImageIcon getIcon() {
+		return icon;
 	}
 
 
 	public void setBomb(boolean bomb) {
 		isBomb = bomb;
-		label = (bomb == true) ? "B" : "";
+		if(bomb == true){
+			icon = icons[11];
+		}
 	}
 
 	public int getI() {
@@ -100,7 +109,27 @@ public class Button extends JButton {
 		return flagged;
 	}
 
-	public boolean isUnsure() {
-		return unsure;
+	public int getToggleState() {
+		return toggleState;
+	}
+
+	public void setToggleState(int toggleState) {
+		this.toggleState = toggleState;
+
+		switch (toggleState) {
+		case 1:
+			setIcon(icons[0]);
+			break;
+		case 2:
+			setIcon(icons[9]);
+			flagged = true;
+			break;
+		case 3:
+			setIcon(icons[10]);
+			flagged = false;
+			break;
+		default:
+			setIcon(icons[0]);
+		}
 	}
 }

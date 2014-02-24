@@ -4,8 +4,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -17,16 +15,17 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-public class Game implements ActionListener {
+public class Game implements MouseListener {
 
 	private final int size = 10;
+	private final int numOfBombs = 10;
 	private int bombCounter;
 	private JFrame mainFrame;
 	private Container board;
 	private Button[][] buttonGrid;
 
 	public Game(String windowLabel) {
-		bombCounter = size;
+		bombCounter = numOfBombs;
 
 		mainFrame = new JFrame(windowLabel);
 		mainFrame.setLayout(new GridLayout(1, 2));
@@ -39,7 +38,7 @@ public class Game implements ActionListener {
 
 		board = mainFrame.getContentPane();
 		board.setLayout(new GridLayout(size, size));
-		board.setPreferredSize(new Dimension(30 * size, 30 * size));
+		board.setPreferredSize(new Dimension(20 * size, 20 * size));
 		init();
 	}
 
@@ -50,7 +49,7 @@ public class Game implements ActionListener {
 		List<Point> bombs = new ArrayList<Point>();
 		Point tmp;
 		
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < numOfBombs; i++) {
 			tmp = new Point();
 			tmp.x = rand.nextInt(size);
 			tmp.y = rand.nextInt(size);
@@ -64,24 +63,8 @@ public class Game implements ActionListener {
 		for (int j = 0; j < size; j++) {
 			for (int k = 0; k < size; k++) {
 				Button btn = new Button(j, k);
-				btn.addActionListener(this);
-				btn.addMouseListener(new MouseListener() {
+				btn.addMouseListener(this);
 
-					public void mouseClicked(MouseEvent e) {
-
-						if (SwingUtilities.isRightMouseButton(e) && isEnabled() == true) {
-							toggleFlags();
-						}
-					}
-					public void mouseEntered(MouseEvent arg0) {
-					}
-					public void mouseExited(MouseEvent arg0) {
-					}
-					public void mousePressed(MouseEvent arg0) {
-					}
-					public void mouseReleased(MouseEvent arg0) {
-					}
-				});
 				btn.setBomb(false);
 				buttonGrid[j][k] = btn;
 				board.add(btn);
@@ -125,6 +108,10 @@ public class Game implements ActionListener {
 		Button b = buttonGrid[i][j];
 		b.setHidden(true);
 		b.setEnabled(false);
+		if (b.isFlagged() == true) {
+			b.setToggleState(1);
+			bombCounter++;
+		}
 
 		int iStart = (i == 0) ? i : (i - 1);
 		int iEnd = (i == size - 1) ? i : (i + 1);
@@ -171,10 +158,10 @@ public class Game implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void mouseClicked(MouseEvent e) {
 		Button b = (Button) e.getSource();
 
-		if (b.isFlagged() == false && b.isUnsure() == false) {
+		if (SwingUtilities.isLeftMouseButton(e) && b.getToggleState() == 1) {
 			if (b.isBomb() == true) {
 				showBoard(true);
 			} else if (b.getVal() > 0) {
@@ -184,6 +171,31 @@ public class Game implements ActionListener {
 				clearZeros(b.getI(), b.getJ());
 			}
 		}
+		if (SwingUtilities.isRightMouseButton(e) && b.isEnabled() == true) {
+			if (bombCounter > 0) {
+				b.toggleFlags();
 
+				if (b.getToggleState() == 2) {
+					bombCounter--;
+				} else if (b.getToggleState() == 3) {
+					bombCounter++;
+				}
+				System.out.println(bombCounter);
+			}
+
+		}
+
+	}
+
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	public void mouseExited(MouseEvent e) {
+	}
+
+	public void mousePressed(MouseEvent e) {
+	}
+
+	public void mouseReleased(MouseEvent e) {
 	}
 }
