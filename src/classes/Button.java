@@ -34,8 +34,6 @@ public class Button extends JButton {
 		toggleState = 1;
 
 		flagged = false;
-		
-
 
 		setFont(new Font("Arial", Font.BOLD, 12));
 		setIcon(icon);
@@ -85,7 +83,6 @@ public class Button extends JButton {
 		return icon;
 	}
 
-
 	public void setBomb(boolean bomb) {
 		isBomb = bomb;
 		if(bomb == true){
@@ -126,6 +123,7 @@ public class Button extends JButton {
 			break;
 		case 3:
 			setIcon(icons[10]);
+
 			flagged = false;
 			break;
 		default:

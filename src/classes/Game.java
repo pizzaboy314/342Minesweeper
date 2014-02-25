@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 public class Game implements MouseListener {
 
@@ -77,6 +79,8 @@ public class Game implements MouseListener {
 		}
 		findBombs();
 		showBoard(false);
+		mainFrame.pack();
+		mainFrame.setVisible(true);
 	}
 
 	public void findBombs() {
@@ -147,15 +151,15 @@ public class Game implements MouseListener {
 		}
 	}
 
-	public void play() {
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				mainFrame.pack();
-				mainFrame.setVisible(true);
-			}
-		});
-
-	}
+	// public void play() {
+	// javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	// public void run() {
+	// mainFrame.pack();
+	// mainFrame.setVisible(true);
+	// }
+	// });
+	//
+	// }
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -173,7 +177,11 @@ public class Game implements MouseListener {
 		}
 		if (SwingUtilities.isRightMouseButton(e) && b.isEnabled() == true) {
 			if (bombCounter > 0) {
+				ToggleIcons worker = new ToggleIcons(b);
+				worker.execute();
+
 				b.toggleFlags();
+				b.setIcon(new ImageIcon("icon5.jpeg"));
 
 				if (b.getToggleState() == 2) {
 					bombCounter--;
@@ -197,5 +205,25 @@ public class Game implements MouseListener {
 	}
 
 	public void mouseReleased(MouseEvent e) {
+	}
+
+	private class ToggleIcons extends SwingWorker<Button, Void> {
+		private Button b;
+
+		public ToggleIcons(Button btn) {
+			b = btn;
+		}
+
+		@Override
+		public Button doInBackground() {
+			b.toggleFlags();
+			b.setIcon(new ImageIcon("icon5.jpeg"));
+
+			return b;
+		}
+
+		@Override
+		public void done() {
+		}
 	}
 }
