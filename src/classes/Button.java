@@ -39,6 +39,7 @@ public class Button extends JButton {
 		setIcon(icon);
 		setMargin(new Insets(0, 0, 0, 0));
 		setHidden(true);
+
 	}
 	
 	public void toggleFlags() {
@@ -47,15 +48,18 @@ public class Button extends JButton {
 		} else {
 			setToggleState(1);
 		}
-
 	}
 
 	public void setHidden(boolean b) {
 		hidden = b;
 		if (b == true) {
-			setIcon(icons[0]);
+			icon = icons[0];
 		} else {
-			setIcon(icon);
+			if (isDebunked() == true) {
+				icon = icons[12];
+			} else {
+				icon = icons[val];
+			}
 		}
 	}
 
@@ -66,13 +70,6 @@ public class Button extends JButton {
 
 	public void setVal(int val) {
 		this.val = val;
-		if (isBomb == false) {
-			if (val > 0) {
-				icon = icons[val];
-			} else {
-				icon = icons[0];
-			}
-		}
 	}
 
 	public boolean isBomb() {
@@ -85,9 +82,6 @@ public class Button extends JButton {
 
 	public void setBomb(boolean bomb) {
 		isBomb = bomb;
-		if(bomb == true){
-			icon = icons[11];
-		}
 	}
 
 	public int getI() {
@@ -110,24 +104,32 @@ public class Button extends JButton {
 		return toggleState;
 	}
 
+	public boolean isDebunked() {
+		if (flagged == true && isBomb == true) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public void setToggleState(int toggleState) {
 		this.toggleState = toggleState;
 
 		switch (toggleState) {
 		case 1:
-			setIcon(icons[0]);
+			icon = icons[0];
+			repaint();
 			break;
 		case 2:
-			setIcon(icons[9]);
+			icon = icons[9];
+			repaint();
 			flagged = true;
 			break;
 		case 3:
-			setIcon(icons[10]);
-
+			icon = icons[10];
+			repaint();
 			flagged = false;
 			break;
-		default:
-			setIcon(icons[0]);
 		}
 	}
 }
