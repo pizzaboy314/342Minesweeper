@@ -57,8 +57,10 @@ public class Button extends JButton {
 		} else {
 			if (isDebunked() == true) {
 				icon = icons[12];
+				setDisabledIcon(icon);
 			} else {
 				icon = icons[val];
+				setDisabledIcon(icon);
 			}
 		}
 	}
