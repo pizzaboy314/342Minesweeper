@@ -134,4 +134,15 @@ public class Button extends JButton {
 			break;
 		}
 	}
+
+	public void reset() {
+		val = 0;
+		toggleState = 1;
+
+		flagged = false;
+		setHidden(true);
+		setBomb(false);
+		setEnabled(true);
+	}
+
 }
