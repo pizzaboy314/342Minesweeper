@@ -1,5 +1,8 @@
 package classes;
-//comment
+
+// Bryan Spahr & George Maratos
+// Contains all GUI items and methods.
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -15,6 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,22 +41,24 @@ public class Game implements MouseListener, ActionListener {
 
 	private final int size = 10; // SIZE OF BOARD
 	private final int numOfBombs = 3; // NUMBER OF MINES
-	private int bombCounter;
-	private int deadCounter;
-	private int endCounter;
-	private JFrame mainFrame;
-	private JPanel board;
-	private JPanel content;
-	private JPanel bar;
-	private Button[][] buttonGrid;
+	private int bombCounter; // Counts down from the number of mines to 0
+	private int deadCounter; // Counts up from 0 to 90, as buttons are disabled
+	private int endCounter; // sum of deadCounter and the # of mines that have
+							// been flagged
+	private JFrame mainFrame; // main window
+	private JPanel content; // to contain the timer/counter bar and main board
+	private JPanel board; // contains grid of JButtons
+	private JPanel bar; // contains game timer and number of mines left
+	private Button[][] buttonGrid; // grid of JButtons
 
-	private static final int N = 60;
-	private int currSecs;
-	private ClockListener cl;
-	private Timer t;
-	private JLabel tLabel;
-	private JLabel bLabel;
+	private static final int N = 60; // # of secs in a minute
+	private int currSecs; // time incrementer for timer, in seconds
+	private ClockListener cl; // increments time every second
+	private Timer t; // the timer
+	private JLabel tLabel; // the gui label for the timer
+	private JLabel bLabel; // the gui label for the bomb counter
 
+	// constructor, initializes stuff and creates the top menu
 	public Game(String windowLabel) {
 		mainFrame = new JFrame(windowLabel);
 		mainFrame.setResizable(false);
@@ -70,7 +76,7 @@ public class Game implements MouseListener, ActionListener {
 		JMenu game = new JMenu("Game"), Help = new JMenu("Help");
 
 		JMenuItem reset = new JMenuItem("Reset"), topten = new JMenuItem("Top Ten"), eXit = new JMenuItem("eXit"), help = new JMenuItem(
-				"Help"), about = new JMenuItem("About");
+				"Help"), about = new JMenuItem("About"), clearscores = new JMenuItem("Clear Scores");
 
 		game.setMnemonic('G');
 
@@ -79,6 +85,8 @@ public class Game implements MouseListener, ActionListener {
 
 		game.add(topten);
 		topten.setMnemonic('T');
+
+		game.add(clearscores);
 
 		game.add(eXit);
 		eXit.setMnemonic('X');
@@ -119,6 +127,7 @@ public class Game implements MouseListener, ActionListener {
 					scores.setResizable(true);
 					scores.getContentPane().setLayout(new BoxLayout(scores.getContentPane(), BoxLayout.Y_AXIS));
 
+					// arraylist of Score to pull in all entries in file
 					List<Score> list = new ArrayList<Score>();
 					try {
 						BufferedReader reader = new BufferedReader(new FileReader("scores.txt"));
@@ -132,9 +141,11 @@ public class Game implements MouseListener, ActionListener {
 						e.printStackTrace();
 					}
 
+					// sort list scores smallest time to largest
 					Collections.sort(list);
 					int limit = (list.size() < 10) ? list.size() : 10;
 					
+					// place first ten scores in list into window
 					for (int i = 0; i < limit; i++) {
 						String s = list.get(i).toString();
 						JLabel msg = new JLabel();
@@ -158,6 +169,26 @@ public class Game implements MouseListener, ActionListener {
 
 		});
 
+		clearscores.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// make sure file exists
+				createScoresFile();
+
+				// replace file contents with empty string
+				PrintWriter out;
+				try {
+					out = new PrintWriter("scores.txt");
+					out.print("");
+					out.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+
+		});
+
 		// adding Reset menu action
 		reset.addActionListener(this);
 
@@ -172,7 +203,7 @@ public class Game implements MouseListener, ActionListener {
 					JLabel msg = new JLabel();
 
 					// help message
-					msg.setText("There will be no help");
+					msg.setText("Google \"how to play minesweeper\".");
 					msg.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 					// create window
@@ -213,7 +244,7 @@ public class Game implements MouseListener, ActionListener {
 					JLabel msg = new JLabel();
 
 					// set actual message
-					msg.setText("Programmers: George Maratos  Bryan Spahr");
+					msg.setText("Programmers: George Maratos, Bryan Spahr");
 					msg.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 					// window
@@ -253,9 +284,11 @@ public class Game implements MouseListener, ActionListener {
 
 	}
 
+	// initialize everything
 	public void init() {
 
 		content = new JPanel();
+		// box layout to align bar and board vertically
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		content.setPreferredSize(new Dimension(20 * size, (28 - (size / 10)) * size));
 
@@ -289,6 +322,7 @@ public class Game implements MouseListener, ActionListener {
 		List<Point> bombs = new ArrayList<Point>();
 		Point tmp;
 		
+		// generate unique locations for bombs
 		for (int i = 0; i < numOfBombs; i++) {
 			tmp = new Point();
 			tmp.x = rand.nextInt(size);
@@ -300,6 +334,7 @@ public class Game implements MouseListener, ActionListener {
 			bombs.add(tmp);
 		}
 
+		// initialize all buttons
 		for (int j = 0; j < size; j++) {
 			for (int k = 0; k < size; k++) {
 				Button btn = new Button(j, k);
@@ -310,6 +345,8 @@ public class Game implements MouseListener, ActionListener {
 				board.add(btn);
 			}
 		}
+
+		// set all bombs
 		for(Point p : bombs){
 			Button b = buttonGrid[p.x][p.y];
 			b.setBomb(true);
@@ -325,6 +362,9 @@ public class Game implements MouseListener, ActionListener {
 		mainFrame.setVisible(true);
 	}
 
+	// loop through entire grid. if current button isn't a mines,
+	// check the surrounding buttons for mines and count how many.
+	// # of mines found is assigned to current button as val.
 	public void findBombs() {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
@@ -349,6 +389,9 @@ public class Game implements MouseListener, ActionListener {
 		}
 	}
 
+	// is called when a zero is clicked on. searches in all directions,
+	// recursively, calling itself when it finds a zero and stopping
+	// when it hits an actual number.
 	public void clearZeros(int i, int j) {
 		deadCounter++;
 		updateEndCounter();
@@ -384,8 +427,11 @@ public class Game implements MouseListener, ActionListener {
 		}
 	}
 
+	// shows the whole board when the game is over
 	public void showBoard(boolean gameOver) {
 		stopTimer();
+
+		// if the game is over and all mines have been found, save score
 		if (gameOver == true && bombCounter == 0) {
 			try {
 				addScore(currSecs);
@@ -397,7 +443,7 @@ public class Game implements MouseListener, ActionListener {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				Button b = buttonGrid[i][j];
-				if (b.isHidden() == true) { // && b.getVal() != 0
+				if (b.isHidden() == true) {
 					b.setHidden(!gameOver);
 				}
 				if (b.isEnabled() == true) {
@@ -407,14 +453,17 @@ public class Game implements MouseListener, ActionListener {
 		}
 	}
 
+	// updates progress of game as mines are flagged and buttons are cleared
 	public void updateEndCounter() {
 		endCounter = deadCounter + (numOfBombs - bombCounter);
 	}
 
+	// updates the mine counter label everytime a mine is flagged
 	public void updateBombLabel() {
 		bLabel.setText("Bombs Left: " + bombCounter + "      ");
 	}
 
+	// creates score file if it doesn't exist
 	public void createScoresFile() {
 		File file = new File("scores.txt");
 		if (!file.exists()) {
@@ -426,6 +475,7 @@ public class Game implements MouseListener, ActionListener {
 		}
 	}
 
+	// prompts for a name to save score
 	public void addScore(int score) throws IOException {
 		createScoresFile();
 		
@@ -440,6 +490,7 @@ public class Game implements MouseListener, ActionListener {
 
 	}
 
+	// handles all button clicks for button grid
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		Button b = (Button) e.getSource();
@@ -448,25 +499,28 @@ public class Game implements MouseListener, ActionListener {
 			startTimer();
 		}
 		
+		// main left click handler. won't trigger if button is flagged or marked
 		if (SwingUtilities.isLeftMouseButton(e) && b.getToggleState() == 1) {
-			if (b.isBomb() == true) {
+			if (b.isBomb() == true) { // if you click on a mine, game is over
 				showBoard(true);
-			} else if (b.getVal() > 0) {
+			} else if (b.getVal() > 0) { // if button isn't a zero, show it, etc
 				deadCounter++;
 				updateEndCounter();
 				b.setHidden(false);
 				b.setEnabled(false);
 			} else {
-				clearZeros(b.getI(), b.getJ());
-			}
-
-			if (b.isEnabled() == false) {
-				System.out.println(b.getVal());
+				clearZeros(b.getI(), b.getJ()); // if button is a zero, clear
+												// out other zeros
 			}
 		}
+
+		// main right click handler. won't trigger if button is already dead
+		// toggle state 1 = blank
+		// toggle state 2 = flagged
+		// toggle state 3 = marked
 		if (SwingUtilities.isRightMouseButton(e) && b.isEnabled() == true) {
-			if (bombCounter > 0) {
-				b.toggleFlags();
+			if (bombCounter > 0) { // can only set #OFMINES flags
+				b.toggleFlags(); // toggle from blank to flagged to marked
 
 				if (b.getToggleState() == 2) {
 					bombCounter--;
@@ -480,13 +534,12 @@ public class Game implements MouseListener, ActionListener {
 			}
 
 		}
-		if (endCounter == size * size) {
+		if (endCounter == size * size) { // if all spaces are cleared or flagged
 			showBoard(true);
 		}
-		System.out.println("bomb counter: " + bombCounter);
-		System.out.println("end counter: " + endCounter);
 	}
 
+	// required but unused mouse event functions
 	public void mouseEntered(MouseEvent e) {
 	}
 
@@ -499,6 +552,7 @@ public class Game implements MouseListener, ActionListener {
 	public void mouseReleased(MouseEvent e) {
 	}
 
+	// for reset button in menu
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		reset();
@@ -506,6 +560,7 @@ public class Game implements MouseListener, ActionListener {
 		refreshButtons();
 	}
 
+	// bug fix for icons that weren't repainting
 	public void refreshButtons() {
 		for (int j = 0; j < size; j++) {
 			for (int k = 0; k < size; k++) {
@@ -515,6 +570,7 @@ public class Game implements MouseListener, ActionListener {
 		}
 	}
 
+	// resets everything
 	public void reset() {
 		stopTimer();
 		tLabel.setText("Time: 0:00");
@@ -524,7 +580,7 @@ public class Game implements MouseListener, ActionListener {
 		endCounter = 0;
 		updateBombLabel();
 
-
+		// determine new bombs
 		Random rand = new Random(System.currentTimeMillis());
 		List<Point> bombs = new ArrayList<Point>();
 		Point tmp;
@@ -553,8 +609,10 @@ public class Game implements MouseListener, ActionListener {
 
 	}
 
+	// updates timer label for every second of timer
 	private class ClockListener implements ActionListener {
 
+		// N = 60
 		private int secs = 0;
 		private int mins = 0;
 		private String label = "Time: %d:%s%d";
@@ -575,10 +633,12 @@ public class Game implements MouseListener, ActionListener {
 		}
 	}
 
+	// starts timer
 	public void startTimer() {
 		t.start();
 	}
 
+	// stops timer
 	public void stopTimer() {
 		t.stop();
 	}

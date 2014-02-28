@@ -1,5 +1,7 @@
 package classes;
 
+// Bryan Spahr & George Maratos
+// Starts the game.
 
 public class Main {
 

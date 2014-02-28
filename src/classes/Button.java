@@ -1,5 +1,9 @@
 package classes;
 
+// Bryan Spahr & George Maratos
+// Class is essentially a JButton, with additional global variables.
+// Contains toggled state from setting flags or question marks.
+
 import java.awt.Font;
 import java.awt.Insets;
 
@@ -9,18 +13,19 @@ import javax.swing.JButton;
 public class Button extends JButton {
 	private static final long serialVersionUID = 1L;
 
-	private int i;
-	private int j;
-	private int val;
-	private int toggleState;
-	private ImageIcon icon;
-	private boolean isBomb;
-	private boolean hidden;
-	private boolean flagged;
+	private int i; // row location of this button
+	private int j; // column location of this button
+	private int val; // represents how many mines are in the surrounding buttons
+	private int toggleState; // for toggling from blank to flagged to marked
+	private ImageIcon icon; // the icon that is painted on the button
+	private boolean isBomb; // is this button a mine?
+	private boolean hidden; // should this button be hidden? IE blank icon
+	private boolean flagged; // is this button currently flagged?
 	
-	private ImageIcon[] icons;
+	private ImageIcon[] icons; // contains all the icons for the game
 
 	public Button(int iPos, int jPos) {
+		// populate array with image files
 		icons = new ImageIcon[13];
 		for (int i = 0; i < 13; i++) {
 			ImageIcon ico = new ImageIcon("icon" + i + ".jpeg");
@@ -42,6 +47,7 @@ public class Button extends JButton {
 
 	}
 	
+	// toggles the int state from 1 to 2 to 3, etc
 	public void toggleFlags() {
 		if (toggleState < 3) {
 			setToggleState(toggleState + 1);
@@ -50,16 +56,19 @@ public class Button extends JButton {
 		}
 	}
 
+	// hides or shows the identity of this button
+	// IE, changes the icon that is shown
 	public void setHidden(boolean b) {
 		hidden = b;
 		if (b == true) {
-			icon = icons[0];
+			icon = icons[0]; // default: show blank icon
 		} else {
-			if (isDebunked() == true) {
+			if (isDebunked() == true) { // if correctly flagged, show disabled
+										// mine icon
 				icon = icons[12];
 				setDisabledIcon(icon);
 			} else {
-				icon = icons[val];
+				icon = icons[val]; // val functions as position in array
 				setDisabledIcon(icon);
 			}
 		}
@@ -106,6 +115,7 @@ public class Button extends JButton {
 		return toggleState;
 	}
 
+	// self-explanatory
 	public boolean isDebunked() {
 		if (flagged == true && isBomb == true) {
 			return true;
@@ -114,6 +124,7 @@ public class Button extends JButton {
 		}
 	}
 
+	// updates the button's icon when the toggle state changes
 	public void setToggleState(int toggleState) {
 		this.toggleState = toggleState;
 
@@ -135,6 +146,7 @@ public class Button extends JButton {
 		}
 	}
 
+	// for resetting each button in the grid back to its starting state
 	public void reset() {
 		val = 0;
 		toggleState = 1;

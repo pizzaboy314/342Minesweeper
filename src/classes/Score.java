@@ -1,5 +1,9 @@
 package classes;
 
+// Bryan Spahr & George Maratos
+// Score class to parse lines from scores file.
+// Class is sortable so that the top ten can be grabbed from a list of Scores.
+
 public class Score implements Comparable<Score> {
 
 	private static final int N = 60;
@@ -7,6 +11,7 @@ public class Score implements Comparable<Score> {
 	String name;
 	String time;
 
+	// constructor. parses name and # of secs from line
 	public Score(String line){
 		String[] split = line.split("_");
 
@@ -25,10 +30,12 @@ public class Score implements Comparable<Score> {
 		}
 	}
 
+	// returns a nice string that will go in GUI
 	public String toString() {
 		return time + " - " + name;
 	}
 
+	// for sorting a list of Score by increasing time
 	@Override
 	public int compareTo(Score s) {
 		return totalSecs - s.totalSecs;
