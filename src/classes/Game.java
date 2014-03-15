@@ -39,8 +39,8 @@ import javax.swing.border.EmptyBorder;
 
 public class Game implements MouseListener, ActionListener {
 
-	private final int size = 10; // SIZE OF BOARD
-	private final int numOfBombs = 3; // NUMBER OF MINES
+	private final int size = 25; // SIZE OF BOARD
+	private final int numOfBombs = 20; // NUMBER OF MINES
 	private int bombCounter; // Counts down from the number of mines to 0
 	private int deadCounter; // Counts up from 0 to 90, as buttons are disabled
 	private int endCounter; // sum of deadCounter and the # of mines that have
@@ -484,9 +484,11 @@ public class Game implements MouseListener, ActionListener {
 
 		String line = s + "_" + Integer.toString(score) + "\n";
 
-		Writer output = new BufferedWriter(new FileWriter("scores.txt", true));
-		output.append(line);
-		output.close();
+		if (s != null) {
+			Writer output = new BufferedWriter(new FileWriter("scores.txt", true));
+			output.append(line);
+			output.close();
+		}
 
 	}
 
